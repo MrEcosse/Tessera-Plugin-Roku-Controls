@@ -1,0 +1,37 @@
+{
+  "_meta": { "name": "English" },
+  "screen": {
+    "no_remote": "Choose the Roku's remote",
+    "no_player": "Choose the Roku's media player",
+    "no_options": "No apps to show",
+    "no_entity": "Choose the Roku's media player",
+    "type_number": "Type a channel",
+    "key_replay": "Replay"
+  },
+  "app": {
+    "name": "Roku controls",
+    "summary": "A Roku's remote on the panel: navigation, playback, a Roku TV's keys, channel numbers and its apps with their logos.",
+    "nav_tile_name": "Roku navigation",
+    "nav_tile_example": "Back and home over the arrows round OK, replay and * under them, as on the remote",
+    "playback_tile_name": "Roku playback",
+    "playback_tile_example": "Rewind, play/pause and fast forward",
+    "tv_tile_name": "Roku TV keys",
+    "tv_tile_example": "A Roku TV's power, volume, mute, channel up and down, and the TV input",
+    "numbers_tile_name": "Roku TV channel numbers",
+    "numbers_tile_example": "Type a channel number and tune to it with Enter",
+    "channels_tile_name": "Roku channels",
+    "channels_tile_example": "The Roku's apps as keys with their logos; one tap starts one",
+    "numbers_max": "Most digits",
+    "numbers_max_hint": "How long a channel number may be.",
+    "numbers_idle": "Forget after",
+    "numbers_idle_hint": "Digits typed and not tuned are forgotten after this many seconds without a tap, so the next person starts afresh. 0 never forgets.",
+    "channels_hide": "Leave out",
+    "channels_hide_hint": "Apps not to show, written as the Roku names them (such as Home). Upper and lower case do not matter.",
+    "channels_only": "Show only",
+    "channels_only_hint": "Show only these apps, in this order, as the shortcut keys of a remote do (Netflix, Freeview Play, ...). Empty shows them all.",
+    "channels_folder": "Logo folder",
+    "channels_folder_hint": "The folder under Home Assistant's www folder that holds the logos (/local/<this>/<app>.png). The README's package fills roku_icons.",
+    "channels_names": "Names under the logos",
+    "channels_names_hint": "The app's name on one line under its logo, where the key is high enough for both."
+  }
+}

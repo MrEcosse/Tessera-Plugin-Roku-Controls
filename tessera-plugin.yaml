@@ -1,0 +1,89 @@
+# Roku controls: a Roku's remote on a wall panel, with nothing to type. Pick the Roku's remote (or, for the numbers and
+# the apps, its media player) from Home Assistant's Roku integration and every key does what the remote's does:
+# navigation with the * key, playback, a Roku TV's own keys, channel numbers tuned on Enter, and the apps as keys with
+# their logos, which a Home Assistant package (README) keeps in Home Assistant's www folder. docs/MANIFEST.md has every
+# field.
+id: roku_controls
+version: 0.1.0
+# 0.12 for an action with two fields (tuning a channel) and the list options. 0.10 for tap_point() and pictures.
+api: "0.12"
+icon: remote-tv
+maintainer: MrEcosse
+license: MIT
+stage: beta
+topics: [media, home]
+requires:
+  esphome: 2026.6.2
+boards: any
+flash_kb: 12
+
+permissions:
+  # The keys send the Roku integration's own commands; the numbers tune its TV tuner; the apps launch an app. Each tile
+  # sends only these, to the entity chosen for it.
+  home_assistant_actions:
+    - remote.send_command
+    - media_player.play_media
+    - media_player.select_source
+
+tiles:
+  # Back and home over the arrows round OK, replay and * (the Roku's Info key) under them, as on the remote.
+  - id: nav
+    name: nav_tile_name
+    icon: remote-tv
+    sizes: { min: 1x1, max: 3x3 }
+    # Nine keys of a block and a label each, and the tile's fields.
+    memory: 1900
+    domains: [remote]
+    example: nav_tile_example
+
+  # Rewind, play/pause and fast forward: in a row, or down a tile taller than wide.
+  - id: playback
+    name: playback_tile_name
+    icon: play-pause
+    sizes: { min: 1x1, max: 4x2 }
+    # Three keys, rewind and fast forward with two labels each.
+    memory: 1000
+    domains: [remote]
+    example: playback_tile_example
+
+  # A Roku TV's keys: power, volume down, mute, volume up, channel down and up, and the TV input (its tuner).
+  - id: tv
+    name: tv_tile_name
+    icon: television
+    sizes: { min: 1x1, max: 7x2 }
+    # Seven keys of a block and a label each, and the tile's fields.
+    memory: 1500
+    domains: [remote]
+    example: tv_tile_example
+
+  # A Roku TV's channel numbers: the digits gather above the keys and Enter tunes the tuner to that channel.
+  - id: numbers
+    name: numbers_tile_name
+    icon: television
+    sizes: { min: 1x1, max: 4x4 }
+    # Twelve keys of a block and a label each, the number line, the hint and the digits typed.
+    memory: 2600
+    domains: [media_player]
+    example: numbers_tile_example
+    options:
+      - { id: max, kind: number, min: 1, max: 8, step: 1, unit: digits, default: 4, label: numbers_max, hint: numbers_max_hint }
+      - { id: idle, kind: number, min: 0, max: 60, step: 1, unit: s, default: 10, label: numbers_idle, hint: numbers_idle_hint }
+
+  # The Roku's apps (its media player's inputs) as keys with their logos, the one in use lit, paged with arrows.
+  - id: channels
+    name: channels_tile_name
+    icon: remote-tv
+    sizes: { min: 1x1, max: 4x4 }
+    # Up to twelve keys (eight with logos) of a block, a place for the logo, the name and the home icon each; the arrows
+    # and the page number; the lists left out and shown only (16 of 49 bytes each); up to 64 apps of 49 bytes.
+    memory: 9800
+    # One place for each logo on the glass at once.
+    pictures: 8
+    domains: [media_player]
+    attributes: [source_list, source]
+    example: channels_tile_example
+    options:
+      - { id: only, kind: text, multiple: 16, label: channels_only, hint: channels_only_hint }
+      - { id: hide, kind: text, multiple: 16, label: channels_hide, hint: channels_hide_hint }
+      - { id: names, kind: toggle, label: channels_names, hint: channels_names_hint, default: true }
+      - { id: folder, kind: text, label: channels_folder, hint: channels_folder_hint, default: roku_icons }

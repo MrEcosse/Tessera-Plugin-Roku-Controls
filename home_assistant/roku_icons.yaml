@@ -1,0 +1,74 @@
+# Roku icons for Tessera's Roku controls plugin: Home Assistant asks the Roku for its apps every six hours, downloads
+# each app's icon into www/roku_icons/ (served as /local/roku_icons/<app>.png) and does it again whenever the apps
+# change, at every start, and when you run "Scan Roku channels now". The Roku channels tile shows these icons.
+#
+# Before you use it:
+#   1. Settings > Devices & services > Add integration > Downloader, with the download directory: www
+#      (Home Assistant's www folder; create it first if your config has none).
+#   2. Put this file in your config's packages folder, and in configuration.yaml:
+#        homeassistant:
+#          packages: !include_dir_named packages
+#   3. Change 192.168.1.50 below (twice) to your Roku's address, then restart Home Assistant.
+#
+# The Roku must accept control from the network: Settings > System > Advanced system settings > Control by mobile apps
+# (Home Assistant's Roku integration needs that too).
+
+rest:
+  - resource: http://192.168.1.50:8060/query/apps   # your Roku's address
+    scan_interval: 21600   # six hours
+    sensor:
+      - name: Roku apps
+        unique_id: tessera_roku_apps
+        icon: mdi:apps
+        # The Roku answers in XML; Home Assistant turns it into JSON: apps.app is the list of apps, each with its
+        # "@id" and its name as "#text".
+        value_template: >-
+          {% set a = value_json.apps.app if value_json.apps is mapping and 'app' in value_json.apps else [] %}
+          {{ (a if a is list else [a]) | count }}
+        json_attributes_path: "$.apps"
+        json_attributes:
+          - app
+
+script:
+  roku_download_icons:
+    alias: Download Roku icons
+    icon: mdi:download
+    variables:
+      roku: http://192.168.1.50:8060   # your Roku's address
+      apps: >-
+        {% set a = state_attr('sensor.roku_apps', 'app') %}
+        {{ [] if a is none else (a if a is list else [a]) }}
+    sequence:
+      - repeat:
+          for_each: "{{ apps }}"
+          sequence:
+            # The file is named as the tile looks for it: the app's name through slugify ("BBC iPlayer" is
+            # bbc_iplayer.png).
+            - action: downloader.download_file
+              data:
+                url: "{{ roku }}/query/icon/{{ repeat.item['@id'] }}"
+                subdir: roku_icons
+                filename: "{{ repeat.item['#text'] | slugify }}.png"
+                overwrite: true
+
+  roku_scan_channels:
+    alias: Scan Roku channels now
+    icon: mdi:refresh
+    sequence:
+      - action: homeassistant.update_entity
+        target:
+          entity_id: sensor.roku_apps
+      - action: script.roku_download_icons
+
+automation:
+  - id: tessera_roku_icons
+    alias: Roku icons when the apps change
+    triggers:
+      - trigger: state
+        entity_id: sensor.roku_apps
+        attribute: app
+      - trigger: homeassistant
+        event: start
+    actions:
+      - delay: 10   # at a start, let the sensor read the Roku first
+      - action: script.roku_download_icons

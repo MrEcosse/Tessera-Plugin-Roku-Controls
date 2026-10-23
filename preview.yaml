@@ -1,0 +1,54 @@
+# What tools/preview.py shows (docs/PREVIEW.md): a Roku Express's navigation and playback keys, a Roku TV's own keys and
+# its channel numbers, the apps of a Roku with more than fit a small tile (paged; the logos stay blocks on the bench, as
+# it has no Home Assistant to take them from), the shortcut apps of a remote with "Show only", and tiles not set up yet.
+tiles:
+  - tile: nav
+    name: Lounge Roku
+    entity: remote.lounge_roku
+    sizes: [1x1, 2x2, 3x3]
+  - tile: playback
+    name: Lounge Roku
+    entity: remote.lounge_roku
+    sizes: [1x1, 2x1, 1x2]
+  - tile: tv
+    name: Bedroom Roku TV
+    entity: remote.bedroom_roku_tv
+    sizes: [1x1, 2x1, 3x1]
+  - tile: numbers
+    name: Bedroom Roku TV
+    entity: media_player.bedroom_roku_tv
+    sizes: [1x1, 2x2]
+  - tile: channels
+    name: Lounge apps
+    entity: media_player.lounge_roku
+    sizes: [1x1, 2x1, 2x2, 3x3]
+  - tile: channels
+    name: Shortcuts
+    entity: media_player.lounge_roku
+    options:
+      only: [Netflix, Freeview Play, Apple TV, Spotify, Rakuten TV]
+      names: false
+    sizes: [2x1, 2x2]
+  - tile: nav
+    name: Not set up
+    sizes: [1x1]
+  - tile: channels
+    name: No player
+    sizes: [1x1]
+
+states:
+  remote.lounge_roku:
+    state: "on"
+    attributes: { friendly_name: Lounge Roku }
+  remote.bedroom_roku_tv:
+    state: "on"
+    attributes: { friendly_name: Bedroom Roku TV }
+  media_player.bedroom_roku_tv:
+    state: "on"
+    attributes: { friendly_name: Bedroom Roku TV, source: Live TV, source_list: [Home, Live TV, Netflix, BBC iPlayer] }
+  media_player.lounge_roku:
+    state: playing
+    attributes:
+      friendly_name: Lounge Roku
+      source: Netflix
+      source_list: [Home, Apple TV, BBC iPlayer, Channel 4, Disney+, Freeview Play, ITVX, Netflix, Plex, Prime Video, Rakuten TV, Spotify, YouTube]
