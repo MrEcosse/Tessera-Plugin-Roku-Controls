@@ -4,7 +4,7 @@ blueprint:
     Keeps the icons of a Roku's apps in Home Assistant's www folder, where the Roku channels tile of Tessera's
     Roku controls plugin shows them (/local/<folder>/<app>.png). It asks the Roku integration for the Roku's apps and
     downloads each app's icon from the Roku: when the apps change, at every start, every six hours, and whenever you
-    run this automation's actions. Needs the Downloader integration with its download directory set to www.
+    run this automation's actions. Needs the Downloader integration; its download directory www is simplest.
   domain: automation
   source_url: https://github.com/MrEcosse/Tessera-Plugin-Roku-Controls/blob/main/home_assistant/roku_icons_blueprint.yaml
   input:
@@ -27,6 +27,15 @@ blueprint:
       default: roku_icons
       selector:
         text:
+    downloader_path:
+      name: Path inside Downloader's folder
+      description: >-
+        Leave empty when Downloader's download directory is www. If it is your config folder instead (Downloader set
+        up with "."), type www/roku_icons, or www/ and the folder above. Downloader cannot save outside its own folder,
+        and Tessera shows pictures only from www.
+      default: ""
+      selector:
+        text:
 
 mode: single
 max_exceeded: silent
@@ -35,6 +44,7 @@ variables:
   roku: !input roku
   address: !input address
   folder: !input folder
+  downloader_path: !input downloader_path
 
 triggers:
   # The Roku's apps changed: one installed or removed.
@@ -62,12 +72,21 @@ actions:
       media_content_id: apps
     response_variable: browsed
   - repeat:
-      for_each: "{{ (browsed[roku].children if roku in browsed else []) | selectattr('media_content_id') | list }}"
+      # Plain texts only: the answer holds Home Assistant's own values (an app's media class), which a template cannot
+      # hand on as a list. Each app becomes its id and its name.
+      for_each: >-
+        {% set ns = namespace(apps=[]) %}
+        {% for app in (browsed[roku].children if roku in browsed else []) %}
+          {% if app.media_content_id %}
+            {% set ns.apps = ns.apps + [{'id': app.media_content_id | string, 'name': app.title | string}] %}
+          {% endif %}
+        {% endfor %}
+        {{ ns.apps }}
       sequence:
         # Named as the tile looks for it: the app's name through slugify (BBC iPlayer is bbc_iplayer.png).
         - action: downloader.download_file
           data:
-            url: "http://{{ address | trim }}:8060/query/icon/{{ repeat.item.media_content_id }}"
-            subdir: "{{ folder }}"
-            filename: "{{ repeat.item.title | slugify }}.png"
+            url: "http://{{ address | trim }}:8060/query/icon/{{ repeat.item.id }}"
+            subdir: "{{ downloader_path | trim if downloader_path | trim else folder }}"
+            filename: "{{ repeat.item.name | slugify }}.png"
             overwrite: true
