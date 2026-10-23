@@ -30,7 +30,7 @@
     "channels_only": "Show only",
     "channels_only_hint": "Show only these apps, in this order, as the shortcut keys of a remote do (Netflix, Freeview Play, ...). Empty shows them all.",
     "channels_folder": "Logo folder",
-    "channels_folder_hint": "The folder under Home Assistant's www folder that holds the logos (/local/<this>/<app>.png). The README's package fills roku_icons.",
+    "channels_folder_hint": "The folder under Home Assistant's www folder that holds the logos (/local/<this>/<app>.png). The README's blueprint fills roku_icons.",
     "channels_names": "Names under the logos",
     "channels_names_hint": "The app's name on one line under its logo, where the key is high enough for both."
   }

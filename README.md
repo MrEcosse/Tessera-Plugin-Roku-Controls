@@ -28,7 +28,7 @@ are for every Roku; the Roku TV keys and channel numbers need a Roku TV and have
 3. In Layout, place the tiles you want from the library's Plugins group and size them by their edges.
 4. In the inspector, choose each tile's entity: the Roku's remote for the navigation, playback and TV keys, its media
    player for the channel numbers and the channels.
-5. For the logos on the channels tile, add the Home Assistant package (below, "The logos").
+5. For the logos on the channels tile, add the automation blueprint (below, "The logos").
 6. Make sure the screen may perform Home Assistant actions. Tessera turns this on for a screen it added to Home
    Assistant; for a screen added by hand, tick **Allow the device to perform Home Assistant actions** in the ESPHome
    integration's options for that device.
@@ -77,34 +77,34 @@ page with logos.
   Play, Apple TV, Spotify, Rakuten TV.
 - **Leave out**: apps not to show, such as Home.
 - **Names under the logos**: on by default.
-- **Logo folder**: where the logos are, under Home Assistant's `www` folder; `roku_icons` unless you changed the package.
+- **Logo folder**: where the logos are, under Home Assistant's `www` folder; `roku_icons` unless you chose another in the blueprint.
 
 The list follows the Roku: Home Assistant's Roku integration reads its apps itself, so an app installed on the Roku
-appears on the tile by its name, and its logo follows with the package below.
+appears on the tile by its name, and its logo follows with the blueprint below.
 
 ## The logos
 
 Tessera fetches pictures for a plugin only from Home Assistant (its `www` folder, `/local/...`) or from public hosts a
 plugin names, never from another device on your network, so no plugin can make the app reach into your house. The logos
-therefore go through Home Assistant: the package in
-[`home_assistant/roku_icons.yaml`](home_assistant/roku_icons.yaml) asks the Roku for its apps
-(`http://<roku>:8060/query/apps`), downloads each app's icon (`/query/icon/<app id>`) into `www/roku_icons/`, named
-after the app (`BBC iPlayer` is `bbc_iplayer.png`), and the tile shows `/local/roku_icons/<that name>.png`.
+therefore go through Home Assistant: an automation blueprint asks the Roku integration for the Roku's apps, downloads
+each app's icon from the Roku (`http://<roku>:8060/query/icon/<app id>`) into `www/roku_icons/`, named after the app
+(`BBC iPlayer` is `bbc_iplayer.png`), and the tile shows `/local/roku_icons/<that name>.png`. Nothing to edit in
+Home Assistant's files:
 
-1. **Settings > Devices & services > Add integration > Downloader**, with the download directory `www`.
-2. Copy `roku_icons.yaml` into your config's `packages` folder, and in `configuration.yaml`:
+1. **Settings > Devices & services > Add integration > Downloader**, with the download directory `www`. (Create a
+   `www` folder next to `configuration.yaml` first if your Home Assistant has none, and restart once after creating it,
+   so Home Assistant serves it as `/local/`.)
+2. Import the blueprint: [![Open your Home Assistant instance and show the blueprint import dialog with a specific
+   blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FMrEcosse%2FTessera-Plugin-Roku-Controls%2Fblob%2Fmain%2Fhome_assistant%2Froku_icons_blueprint.yaml),
+   or **Settings > Automations & scenes > Blueprints > Import blueprint** with the address of
+   [`home_assistant/roku_icons_blueprint.yaml`](home_assistant/roku_icons_blueprint.yaml) in this repository.
+3. Create an automation from it: choose the Roku's media player and type its IP address (on the Roku: **Settings >
+   Network > About**).
+4. Run it once: open the automation, **⋮ > Run actions**. The icons appear in `www/roku_icons/`.
 
-   ```yaml
-   homeassistant:
-     packages: !include_dir_named packages
-   ```
-
-3. Change `192.168.1.50` in it (twice) to your Roku's address, and restart Home Assistant.
-
-It reads the Roku's apps every six hours, downloads the icons whenever the apps change and at every start, and adds a
-script, **Scan Roku channels now**, to do it at once: run it from Home Assistant, or put it on the panel as a script
-tile. For more than one Roku, copy the package once per Roku with its own address, sensor and folder, and give each
-channels tile its folder.
+It runs by itself when an app is installed or removed, at every start and every six hours. To scan at once, run its
+actions again, from Home Assistant or from the panel: a Tessera tile of the automation runs its actions when held. For
+more than one Roku, create one automation per Roku, each with its own folder, and give each channels tile its folder.
 
 An app whose name has letters outside the Latin alphabet may get another file name than the tile looks for; rename the
 file to what the tile asks for (the app's name in lower case, with `_` between words) if its logo stays empty.
@@ -128,4 +128,4 @@ file to what the tile asks for (the app's name in lower case, with `_` between w
 - `components/roku_controls/numbers.cpp`: the number keys; Enter sends the action with two fields (plugin API 0.12).
 - `components/roku_controls/channels.cpp` and `roku_slug.h`: the apps as keys, each logo a picture place
   (`ui::picture`) showing `/local/<folder>/<slug>.png`, the slug written as Home Assistant's `slugify` writes it.
-- `home_assistant/roku_icons.yaml`: the package that keeps the logos in Home Assistant.
+- `home_assistant/roku_icons_blueprint.yaml`: the automation blueprint that keeps the logos in Home Assistant.

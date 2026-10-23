@@ -1,0 +1,73 @@
+blueprint:
+  name: Roku icons for Tessera
+  description: >-
+    Keeps the icons of a Roku's apps in Home Assistant's www folder, where the Roku channels tile of Tessera's
+    Roku controls plugin shows them (/local/<folder>/<app>.png). It asks the Roku integration for the Roku's apps and
+    downloads each app's icon from the Roku: when the apps change, at every start, every six hours, and whenever you
+    run this automation's actions. Needs the Downloader integration with its download directory set to www.
+  domain: automation
+  source_url: https://github.com/MrEcosse/Tessera-Plugin-Roku-Controls/blob/main/home_assistant/roku_icons_blueprint.yaml
+  input:
+    roku:
+      name: Roku
+      description: The Roku's media player, from Home Assistant's Roku integration.
+      selector:
+        entity:
+          filter:
+            - integration: roku
+              domain: media_player
+    address:
+      name: The Roku's address
+      description: Its IP address on your network, such as 192.168.1.50 (Settings > Network > About on the Roku).
+      selector:
+        text:
+    folder:
+      name: Folder
+      description: The folder under www for the icons. Keep roku_icons unless the tile's "Logo folder" says otherwise.
+      default: roku_icons
+      selector:
+        text:
+
+mode: single
+max_exceeded: silent
+
+variables:
+  roku: !input roku
+  address: !input address
+  folder: !input folder
+
+triggers:
+  # The Roku's apps changed: one installed or removed.
+  - trigger: state
+    entity_id: !input roku
+    attribute: source_list
+  - trigger: homeassistant
+    event: start
+  - trigger: time_pattern
+    hours: "/6"
+
+actions:
+  # At a start, give the Roku integration time to read the Roku first.
+  - if:
+      - condition: template
+        value_template: "{{ trigger is defined and trigger.platform == 'homeassistant' }}"
+    then:
+      - delay: 30
+  # The Roku's apps, each with its name (title) and its app id (media_content_id).
+  - action: media_player.browse_media
+    target:
+      entity_id: "{{ roku }}"
+    data:
+      media_content_type: apps
+      media_content_id: apps
+    response_variable: browsed
+  - repeat:
+      for_each: "{{ (browsed[roku].children if roku in browsed else []) | selectattr('media_content_id') | list }}"
+      sequence:
+        # Named as the tile looks for it: the app's name through slugify (BBC iPlayer is bbc_iplayer.png).
+        - action: downloader.download_file
+          data:
+            url: "http://{{ address | trim }}:8060/query/icon/{{ repeat.item.media_content_id }}"
+            subdir: "{{ folder }}"
+            filename: "{{ repeat.item.title | slugify }}.png"
+            overwrite: true

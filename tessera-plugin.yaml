@@ -1,8 +1,8 @@
 # Roku controls: a Roku's remote on a wall panel, with nothing to type. Pick the Roku's remote (or, for the numbers and
 # the apps, its media player) from Home Assistant's Roku integration and every key does what the remote's does:
 # navigation with the * key, playback, a Roku TV's own keys, channel numbers tuned on Enter, and the apps as keys with
-# their logos, which a Home Assistant package (README) keeps in Home Assistant's www folder. docs/MANIFEST.md has every
-# field.
+# their logos, which a Home Assistant automation blueprint (README) keeps in Home Assistant's www folder.
+# docs/MANIFEST.md has every field.
 id: roku_controls
 version: 0.1.0
 # 0.12 for an action with two fields (tuning a channel) and the list options. 0.10 for tap_point() and pictures.
