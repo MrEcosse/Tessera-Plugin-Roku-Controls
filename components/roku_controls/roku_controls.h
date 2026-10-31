@@ -11,6 +11,14 @@ tessera::Tile *make_tv(const tessera::Plugin *plugin);        // keys.cpp: a Rok
 tessera::Tile *make_numbers(const tessera::Plugin *plugin);   // numbers.cpp: a channel number, tuned on Enter
 tessera::Tile *make_channels(const tessera::Plugin *plugin);  // channels.cpp: the apps, with their logos
 
+// Runs `service` on `entity` with one field `key` set to `value` as text. Plugin API 0.24 has one form of
+// tessera::action, its fields a JSON object.
+inline bool run_action(const char *service, const char *entity, const char *key, const char *value) {
+  JsonDocument fields;
+  fields[key] = value ? value : "";
+  return tessera::action(service, entity, fields);
+}
+
 class RokuControls : public Component, public tessera::Plugin {
  public:
   void setup() override;

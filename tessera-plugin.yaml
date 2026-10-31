@@ -5,7 +5,7 @@
 # docs/MANIFEST.md has every field.
 id: roku_controls
 version: 0.1.0
-# 0.12 for an action with two fields (tuning a channel) and the list options. 0.10 for tap_point() and pictures.
+# 0.12 for an action's fields as JSON (the only form from 0.24) and the list options. 0.10 for tap_point() and pictures.
 api: "0.12"
 icon: remote-tv
 maintainer: MrEcosse
@@ -74,9 +74,10 @@ tiles:
     name: channels_tile_name
     icon: remote-tv
     sizes: { min: 1x1, max: 4x4 }
-    # Up to twelve keys (eight with logos) of a block, a place for the logo, the name and the home icon each; the arrows
-    # and the page number; the lists left out and shown only (16 of 49 bytes each); up to 64 apps of 49 bytes.
-    memory: 9800
+    # Up to eight keys with logos of a block, a place for the logo, the name and the home icon each (2880; twelve
+    # without, 2160); the arrows, the page number and the hint (560); the lists left out and shown only (16 of 49 bytes
+    # each, 1568); up to 64 apps of 49 bytes (3136) and the tile's fields: about 8.4 KB, all made once.
+    memory: 8400
     # One place for each logo on the glass at once.
     pictures: 8
     domains: [media_player]

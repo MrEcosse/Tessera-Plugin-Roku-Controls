@@ -182,7 +182,7 @@ class KeysTile : public tessera::Tile {
     const int i = key_at(tessera::tap_point());
     if (i < 0 || !entity_[0]) return;
     flash_ = i;
-    flash_ok_ = tessera::action("remote.send_command", entity_, "command", defs_[i].command);
+    flash_ok_ = run_action("remote.send_command", entity_, "command", defs_[i].command);
     flash_at_ = esphome::millis();
     paint();
   }
